@@ -23,7 +23,7 @@ def create_app(test_config=None):
     # must be supplied through DATABASE_URL.  Initialise a newly connected
     # hosted database once per cold start; create_all is idempotent and the
     # seed function only inserts categories that do not already exist.
-    if os.getenv("VERCEL") and os.getenv("DATABASE_URL"):
+    if os.getenv("DATABASE_URL"):
         from .models import Category  # Registers model metadata before create_all.
         from .services.seed import seed_defaults
         with app.app_context():

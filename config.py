@@ -8,10 +8,14 @@ load_dotenv(BASE_DIR / ".env")
 
 
 def database_url():
-    """Return a SQLAlchemy-compatible URL from a conventional MySQL URL."""
+    """Return a SQLAlchemy-compatible URL from common cloud database URLs."""
     value = os.getenv("DATABASE_URL", "").strip()
     if value.startswith("mysql://"):
         return "mysql+pymysql://" + value[len("mysql://"):]
+    if value.startswith("postgres://"):
+        return "postgresql+psycopg://" + value[len("postgres://"):]
+    if value.startswith("postgresql://"):
+        return "postgresql+psycopg://" + value[len("postgresql://"):]
     return value or f"sqlite:///{BASE_DIR / 'instance' / 'home_budget.db'}"
 
 
