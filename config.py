@@ -7,9 +7,17 @@ BASE_DIR = Path(__file__).resolve().parent
 load_dotenv(BASE_DIR / ".env")
 
 
+def database_url():
+    """Return a SQLAlchemy-compatible URL from a conventional MySQL URL."""
+    value = os.getenv("DATABASE_URL", "").strip()
+    if value.startswith("mysql://"):
+        return "mysql+pymysql://" + value[len("mysql://"):]
+    return value or f"sqlite:///{BASE_DIR / 'instance' / 'home_budget.db'}"
+
+
 class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "development-only-change-me")
-    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or f"sqlite:///{BASE_DIR / 'instance' / 'home_budget.db'}"
+    SQLALCHEMY_DATABASE_URI = database_url()
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JSON_SORT_KEYS = False
     MAX_CONTENT_LENGTH = 1 * 1024 * 1024
