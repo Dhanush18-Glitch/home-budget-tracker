@@ -19,6 +19,17 @@ def create_app(test_config=None):
     db.init_app(app)
     migrate.init_app(app, db)
 
+    # A Vercel function has no durable local disk, so its production database
+    # must be supplied through DATABASE_URL.  Initialise a newly connected
+    # hosted database once per cold start; create_all is idempotent and the
+    # seed function only inserts categories that do not already exist.
+    if os.getenv("VERCEL") and os.getenv("DATABASE_URL"):
+        from .models import Category  # Registers model metadata before create_all.
+        from .services.seed import seed_defaults
+        with app.app_context():
+            db.create_all()
+            seed_defaults()
+
     from .routes.web import web_bp
     from .routes.api import api_bp
     app.register_blueprint(web_bp)
