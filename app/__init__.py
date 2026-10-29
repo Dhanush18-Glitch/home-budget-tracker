@@ -10,7 +10,12 @@ def create_app(test_config=None):
     app.config.from_object(Config)
     if test_config:
         app.config.update(test_config)
-    Path(app.instance_path).mkdir(parents=True, exist_ok=True)
+    # Vercel's deployed application bundle is read-only.  Creating Flask's
+    # local ``instance`` directory there makes the function fail while it is
+    # importing, before it can connect to the configured hosted database.
+    # Local development and tests still use the normal writable instance path.
+    if not os.getenv("VERCEL"):
+        Path(app.instance_path).mkdir(parents=True, exist_ok=True)
     db.init_app(app)
     migrate.init_app(app, db)
 
