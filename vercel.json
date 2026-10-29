@@ -1,0 +1,15 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/index.py"
+    }
+  ],
+  "functions": {
+    "api/index.py": {
+      "maxDuration": 60,
+      "excludeFiles": "{tests/**,migrations/**,.venv/**,.ppt-build/**,.codex-finalizer/**,artifacts/**,deliverables/**,docs/**}"
+    }
+  }
+}
