@@ -127,7 +127,7 @@ def budgets():
             db.session.add(MonthlyBudget(**clean_budget(request.form))); db.session.commit(); flash("Budget saved.", "success")
         except ValidationError as exc: flash(str(exc), "error")
         except IntegrityError: db.session.rollback(); flash("A budget already exists for that category and period.", "error")
-        return redirect(url_for("web.budgets", year=year, month=month))
+        return redirect(url_for("web.dashboard", year=year, month=month))
     return render_template("budgets.html", comparisons=budget_comparison(year, month), year=year, month=month,
                            categories=Category.query.filter_by(kind="expense").order_by(Category.name).all())
 
@@ -135,8 +135,9 @@ def budgets():
 @web_bp.post("/budgets/<int:budget_id>/delete")
 def delete_budget(budget_id):
     budget = db.session.get(MonthlyBudget, budget_id) or abort(404)
+    year, month = budget.year, budget.month
     db.session.delete(budget); db.session.commit(); flash("Budget deleted.", "success")
-    return redirect(url_for("web.budgets", year=budget.year, month=budget.month))
+    return redirect(url_for("web.dashboard", year=year, month=month))
 
 
 @web_bp.route("/budgets/<int:budget_id>/edit", methods=["GET", "POST"])
@@ -146,7 +147,7 @@ def edit_budget(budget_id):
         try:
             for key, value in clean_budget(request.form).items(): setattr(budget, key, value)
             db.session.commit(); flash("Budget updated.", "success")
-            return redirect(url_for("web.budgets", year=budget.year, month=budget.month))
+            return redirect(url_for("web.dashboard", year=budget.year, month=budget.month))
         except ValidationError as exc: flash(str(exc), "error")
         except IntegrityError: db.session.rollback(); flash("A budget already exists for that category and period.", "error")
     return render_template("budget_form.html", budget=budget, categories=Category.query.filter_by(kind="expense").order_by(Category.name).all())
